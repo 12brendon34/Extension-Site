@@ -14,7 +14,7 @@
             this.screenHeight = window.Game.getHeight();
             this.box16 = window.Game.box16;
             this.rows = 10;
-            this.cols = 3; //change this every time 10 levels are added
+            this.cols = 5; //change this every time 10 levels are added
 
             this.setUI(true);
 		};
@@ -23,10 +23,7 @@
         this.tick = function (delta) {
             //adjust height to player position
             if (this.editor_button.isClicked()){ 
-                window.Game.theme.setTheme("editLand");
-                window.Game.levelEditor.updateUI(1);
-                window.Game.setView(3); 
-                window.Game.player.respawn(true); //force a full respawn
+                this.openEditor();
             }
             else if (this.play_button.isClicked()){
                 window.Game.interface.build();
@@ -88,6 +85,8 @@
                 case(0): updateUI = window.Game.theme.setTheme("pinkLand"); break;
                 case(1): updateUI = window.Game.theme.setTheme("darkLand"); break;
                 case(2): updateUI = window.Game.theme.setTheme("blueLand"); break;
+                case(3): updateUI = window.Game.theme.setTheme("hellLand"); break;
+                case(4): updateUI = window.Game.theme.setTheme("jungleLand"); break;
             }
             if (updateUI == true) this.updateUIColor();
             return updateUI;
@@ -103,7 +102,7 @@
             this.main_color2 = window.Game.theme.main_color2;
             this.main_color3 = window.Game.theme.main_color3;
             //screen1 buttons
-            this.editor_button = new Button("_f", leftX, bottomY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
+            this.editor_button = new Button("_c", leftX, bottomY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
             this.time_button = new Button("00:00", leftX+(bigBox*1.5), bottomY, bigBox*2, bigBox);
             this.time_button.setFontSize(0.75);
             this.time_button.disable();
@@ -202,6 +201,12 @@
                 }
             }
             return selectedLevel;
+        }
+        this.openEditor = function() {
+            window.Game.theme.setTheme("editLand");
+            window.Game.levelEditor.updateUI(1);
+            window.Game.setView(3); 
+            window.Game.player.respawn(true); //force a full respawn
         }
 
         //initiate prototype variables

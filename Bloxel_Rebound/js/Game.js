@@ -10,6 +10,9 @@
             //initiate object variables
             this.showFPS = false;
             this.gamePaused = false;
+            this.speed = 1;
+            this.speedMultiplier = 1;
+            this.gravityMultiplier = 1;
             document.addEventListener("deviceready", function(){ StatusBar.hide(); }, false);
             document.addEventListener("pause", function(){ window.Game.pauseGame(); window.Game.stopMusic(); }, false);
             document.addEventListener("resume", function(){ /*window.Game.resumeGame();*/ window.Game.playMusic(); StatusBar.hide(); }, false);
@@ -17,10 +20,6 @@
             document.addEventListener("contextmenu", function(e) { e.preventDefault(); }, false);
             document.onkeydown = this.handleKeyDown;
             document.onkeyup = this.handleKeyUp;
-            if (window.addEventListener) {
-                window.addEventListener("mousewheel", function(event){ window.Game.doScroll(event); }, false);
-                window.addEventListener("DOMMouseScroll", function(event){ window.Game.doScroll(event); }, false);
-            } else { window.attachEvent("onmousewheel", function(event){ window.Game.doScroll(event); }); }
             window.addEventListener('resize', function(){ window.Game.resizeCanvas(); });
 
             this.canvas = document.getElementById("gameCanvas");
@@ -39,11 +38,16 @@
             this.stage.on("stagemousemove", function(event){ window.Game.stageMouseMove(event); });
             this.stage.on("stagemouseup", function(event){ window.Game.stageMouseUp(event); });
 
+            if (this.canvas.addEventListener) {
+                this.canvas.addEventListener("mousewheel", function(e){ window.Game.doScroll(e); }, false);
+                this.canvas.addEventListener("DOMMouseScroll", function(e){ window.Game.doScroll(e); }, false);
+            } else { window.attachEvent("onmousewheel", function(e){ window.Game.doScroll(e); }); }
+
             this.assetManager.preload.on("complete", function(){ window.Game.setStage(); window.Game.syncLocalVolume(); window.Game.playMusic(); });
             this.assetManager.preload.on("progress", function(){ window.Game.assetManager.updateLoading(); window.Game.stage.update(); });
         };
         this.tick = function(event){
-            this.delta = event.delta; //elapsedTimeInMS / 1000msPerSecond
+            this.delta = event.delta * this.speed * this.speedMultiplier; //elapsedTimeInMS / 1000msPerSecond
 
             //tick according to game view
             if (this.view == 0){ //intro scene
@@ -51,6 +55,7 @@
                 this.player.tick(this.delta); //moves theme background
             }
             else if (this.view == 1){ //home
+                this.dialog.tick(this.delta);
                 this.theme.tick(this.delta, true);
                 this.home.tick(this.delta);
                 this.player.tick(this.delta, this.levelMap); //moves theme background
@@ -84,7 +89,7 @@
             this.stage.update();
         };
         this.setStage = function() {
-            
+            this.ready = true;
 
             if (this.fps == null){
                 this.fps = new createjs.Text(10, this.fontSize +"px prstart", "#000000");
@@ -125,6 +130,7 @@
             if (!createjs.Ticker.hasEventListener("tick")) {
                 createjs.Ticker.addEventListener("tick", function(event){ window.Game.tick(event); });
                 createjs.Ticker.timingMode = createjs.Ticker.RAF;
+                //createjs.Ticker.timingMode = createjs.Ticker.TIMEOUT;
                 //createjs.Ticker.setFPS(24);
             }
         };
@@ -146,7 +152,11 @@
             else if (this.view == 2){}
             else if (this.view == 3){ this.levelEditor.stageMouseUp(event); }
         };
-        this.scrollWheel = function(e){ this.levelEditor.scrollWheel(e); };
+        this.scrollWheel = function(e){
+            if (this.view == 3){
+                this.levelEditor.scrollWheel(e);
+            }
+        };
         this.setView = function(view, prevView){
             this.view = view;
             this.prevView = prevView == null ? view : prevView;
@@ -174,7 +184,7 @@
         };
         this.resumeGame = function(retry){
             if (this.view == 1){ /*intro screen*/ 
-                if (this.gamePaused == false){
+                if (this.gamePaused == false && window.Game.home.selectedLevel > 0){
                     window.Game.home.play_button.toggle();
                 }
             }
@@ -193,7 +203,6 @@
                                 window.Game.dialog.quit(true);
                                 this.gamePaused = false;
                             }
-                            
                         }
                     }
                     else if (window.Game.dialog.state == "gameover"){
@@ -213,7 +222,7 @@
             else if (this.view == 3){
                 if (this.levelEditor.screen == 1){
                     if (window.Game.levelEditor.edit_button.isEnabled()){
-                        window.Game.levelEditor.edit_button.toggle();
+                        window.Game.levelEditor.edit_button.toggleColor(true);
                     }
                 }
                 else if (this.levelEditor.screen == 2){
@@ -244,6 +253,7 @@
                 case 17: this.ctrlKey = true; break; //ctrl
                 case 27: window.Game.escapeKey(); break; //esc
                 case 32: window.Game.resumeGame(); window.Game.player.jump(); break; //space
+                case 38: window.Game.resumeGame(); window.Game.player.jump(); break; //up
                 case 37: window.Game.levelEditor.leftKey(); break; //left
                 case 39: window.Game.levelEditor.rightKey(); break; //right
                 case 46: window.Game.levelEditor.deleteKey(); break; //delete
@@ -262,7 +272,12 @@
                 case 17: this.ctrlKey = false; break;
             }
         };
-        this.doScroll = function (e) { e=window.event || e; this.scrollWheel(e); e.preventDefault(); };
+        this.doScroll = function (e) { 
+            if (this.view == 3) {
+                e.preventDefault();
+                e=window.event || e; this.scrollWheel(e);
+            }
+        };
         this.playMusic = function(){ createjs.Sound.play("track", {interrupt: createjs.Sound.INTERRUPT_NONE, loop: -1}); };
         this.stopMusic = function(){ createjs.Sound.stop(); };
         this.muteVolume = function(){ createjs.Sound.volume = 0; window.storageManager.storeVolume(0); };
@@ -270,6 +285,7 @@
         this.getVolume = function(){ return createjs.Sound.volume; }
         this.setVolume = function(volume){ createjs.Sound.volume = volume; }
         this.syncLocalVolume = function(){ createjs.Sound.volume = window.storageManager.getVolume(); }
+        this.resetMultipliers = function(){ this.speedMultiplier = 1; this.gravityMultiplier = 1; }
 
         //initiate prototype variables
         this.init();

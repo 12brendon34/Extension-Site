@@ -5,7 +5,7 @@
     window.Button = createjs.promote(Button, "Container");
 
 	//constructor
-	function Button(text, x, y, width, height, bgColor1, bgColor2, fontColor1, fontColor2) {
+	function Button(text, x, y, width, height, bgColor1, bgColor2, fontColor1, fontColor2, shapeInner) {
         //prototype functions
 		this.init = function(){
             //initiate object variables
@@ -17,6 +17,7 @@
             this.regY = Math.floor(height/2);
             this.shape = new createjs.Shape();
             this.shape.alpha = this.targetShapeAlpha = 1;
+            this.shapeInner = shapeInner;
             this.width = width;
             this.height = height;
             this.text = this.name = text;
@@ -65,6 +66,7 @@
             this.shape = new createjs.Shape();
             this.shape.alpha = this.targetShapeAlpha;
             this.shape.graphics.beginFill(this.bgColor).drawRect(0,0,this.width,this.height);
+            if (this.shapeInner == null) this.shapeInner = new createjs.Shape();
             //content
             this.isChar = true;
             if (this.text.charAt(0) == "_"){ //format for icon font-family
@@ -89,11 +91,11 @@
                 this.contentOutline = this.content.clone();
                 this.contentOutline.outline = this.outline;
                 this.contentOutline.color = this.outlineColor;
-                console.log(this.content.x);
-                this.addChild(this.shape, this.contentOutline, this.content, this.tile);
+                //console.log(this.content.x);
+                this.addChild(this.shape, this.contentOutline, this.content, this.tile, this.shapeInner);
             }
             else {
-                this.addChild(this.shape, this.content, this.tile);
+                this.addChild(this.shape, this.content, this.tile, this.shapeInner);
             }
             //set alpha
             this.alpha = this.targetAlpha;
@@ -101,8 +103,8 @@
         this.setFontSize = function(fontSize){ this.fontSize = this.box16 * fontSize; this.redraw(); };
         this.setFontColor = function(fontColor){ this.fontColor = fontColor; this.redraw(); };
         this.setFontFamily = function(fontFamily){ this.fontFamily = fontFamily; this.redraw(); };
-        this.disable = function(alpha){ if (alpha == null) alpha = 1; this.mouseEnabled = false; this.content.alpha = alpha; };
-        this.enable = function(alpha){ if (alpha == null) alpha = 1; this.mouseEnabled = true; this.content.alpha = alpha; };
+        this.disable = function(alpha){ if (alpha == null) { alpha = 1; } this.mouseEnabled = false; this.content.alpha = alpha; this.shapeInner.alpha = alpha; };
+        this.enable = function(alpha){ if (alpha == null) alpha = 1; this.mouseEnabled = true; this.content.alpha = alpha; this.shapeInner.alpha = alpha; };
         this.isEnabled = function(){ return this.mouseEnabled; };
         this.isDisabled = function(){ return this.mouseEnabled == true; };
         this.addStroke = function(sWidth, sColor, sStyle){

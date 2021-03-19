@@ -25,21 +25,26 @@
             //listen to screen actions
             if (this.screen == 1){
                 if (this.back_button.isClicked()){
-                    this.updateUI();
+                    this.updateUI(1);
                     window.Game.home.setUI();
                     window.Game.player.respawn();
                     window.Game.setView(1);
                 }
                 else if (this.null_button.isClicked()){ /*temporarily no use*/ }
-                else if (this.share_button_1.isClicked()){ window.Game.dialog.openDialogWindow("playCode"); }
+                else if (this.share_button_1.isClicked()){ window.Game.dialog.openDialogWindow("downloadOptions"); }
                 else if (this.remove_button_1.isClicked()){ this.deleteKey(); }
                 else if (this.add_button_1.isClicked()){
-                    window.Game.levelMap.createEmptyMap(12,14);
-                    window.storageManager.setLevelString(window.Game.levelMap.toString());
-                    window.storageManager.tipString = ""; //empty string
-                    this.selectedButtonIndex = window.storageManager.saveToLocalStorage(); //returns index of latest save id
-                    this.updateUI();
-                    ga('send', 'event', 'game', 'added');
+                    if (this.levelButtons.children.length < 3 || window.storageManager.hasLicense()){
+                        window.Game.levelMap.createEmptyMap(12,14);
+                        window.storageManager.setLevelString(window.Game.levelMap.toString());
+                        window.storageManager.tipString = ""; //empty string
+                        this.selectedButtonIndex = window.storageManager.saveToLocalStorage(); //returns index of latest save id
+                        this.updateUI(1);
+                        window.storageManager.uploadLocalStorageToChromeStorage(); //upload to chrome storage
+                    }
+                    else {
+                        window.Game.dialog.openDialogWindow("errorLevelLimit");
+                    }
                 }
                 else if (this.edit_button.isClicked()){
                     this.tileType = 1; //reset tile to default
@@ -60,8 +65,8 @@
                     //enable edit button
                     if (selectedCount < 2){ //if selected level has been changed
                         if (selectedLevel == -1){ //if no level IS selected
-                            this.remove_button_1.disable(0.25);
-                            this.edit_button.disable(0.25); //change alpha to 25%
+                            this.remove_button_1.disable(0.1);
+                            this.edit_button.disable(0.1); //change alpha to 25%
                             this.edit_button.toggleColor(false);
                         }
                         else{ //if a level IS selected, make it clickable
@@ -81,7 +86,7 @@
                     this.updateUI(1);
                     window.Game.levelMap.clearMapHistory(); //clear map history
                 }
-                else if (this.share_button_2.isClicked()){ this.shareCurrentLevel(); }
+                else if (this.share_button_2.isClicked()){ window.Game.dialog.openDialogWindow("uploadOptions"); }
                 else if (this.undo_button.isClicked()){ this.undo(); }
                 else if (this.redo_button.isClicked()){ this.redo(); }
                 else if (this.add_button_2.isClicked()){
@@ -183,7 +188,7 @@
             this.text_1.disable();
             this.null_button = new Button("", leftX+(bigBox*3), topY, bigBox, bigBox);
             this.null_button.disable();
-            this.share_button_1 = new Button("_e", leftX, bottomY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
+            this.share_button_1 = new Button("_v", leftX, bottomY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
             this.remove_button_1 = new Button("_n", leftX+(bigBox), bottomY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
             this.add_button_1 = new Button("_m", leftX+(bigBox*2), bottomY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
             this.edit_button = new Button("_c", leftX+(bigBox*3), bottomY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
@@ -233,7 +238,7 @@
 
             //buttons
             this.menu_button = new Button("_a", leftX, topY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
-            this.share_button_2 = new Button("_e", leftX+(bigBox), topY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
+            this.share_button_2 = new Button("_w", leftX+(bigBox), topY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
             this.undo_button = new Button("_i", leftX+(bigBox*2), topY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
             this.redo_button = new Button("_j", leftX+(bigBox*3), topY, bigBox, bigBox, "#000000", this.main_color2, "#ffffff", "#ffffff");
             this.add_button_2 = new Button("+"+this.tileType, leftX, bottomY, bigBox, bigBox, this.main_color3, this.main_color3, "#ffffff", "#ffffff");
@@ -283,13 +288,13 @@
             }
         };
         this.setTile = function(event, preventRender){
-            var erase = (event.nativeEvent.button == 2); //enable erase if button = right click
+            if (event.nativeEvent.button == 2) this.erase = true; //enable erase if button = right click
             var col = Math.floor((event.stageX - window.Game.levelMap.x)/this.box12);
             var row = Math.floor((event.stageY - window.Game.levelMap.y)/this.box12);
             var success = false;
             if (!this.showTileOptions && window.Game.dialog.isClosed()){ 
                 //sets a new tile and declares if successful
-                success = window.Game.levelMap.setTile(col,row,erase==false?this.tileType:0);
+                success = window.Game.levelMap.setTile(col,row,this.erase==false?this.tileType:0);
             }
             this.main_color2 = window.Game.theme.main_color2;
             this.main_color3 = window.Game.theme.main_color3;
@@ -371,7 +376,7 @@
             }
 
             //reset values
-            this.levelDrag = this.mapDrag = false;
+            this.levelDrag = this.mapDrag = this.erase = false;
             this.levelButtons.mouseEnabled = true;
         };
         this.scrollWheel = function (e){
@@ -401,7 +406,8 @@
                     bigBox*3, bigBox/2);
                 level.setFontSize(0.9);
                 level.addStroke(this.box12 / 5,"#000000", "inner"); //6 point stroke
-                this.levelButtons.addChildAt(level,i);
+                //this.levelButtons.addChildAt(level,i);
+                this.levelButtons.addChildAt(level);
             }
         };
         this.sortLevelButtons = function(){
@@ -444,6 +450,7 @@
             var levelKey = parseInt(this.getLevelButtonText(this.selectedButtonIndex-1).replace ( /[^\d.]/g, '' ));
             window.storageManager.setLevelString(window.Game.levelMap.toString());
             window.storageManager.saveToLocalStorage(levelKey);
+            window.storageManager.uploadLocalStorageToChromeStorage(); //upload to chrome storage
         };
         this.editCurrentLevel = function(resumeEditing){
             var levelKey = parseInt(this.getLevelButtonText(this.selectedButtonIndex-1).replace ( /[^\d.]/g, '' ));
@@ -456,12 +463,12 @@
         };
         this.shareCurrentLevel = function(){
             if (this.screen == 2) this.saveCurrentLevel();
-            var code = Math.random().toString(16).slice(2, 8).toUpperCase(); //firebase index
+            var code = Math.random().toString(16).slice(2, 8).toUpperCase(); //database index
             var levelKey = parseInt(this.getLevelButtonText(this.selectedButtonIndex-1).replace ( /[^\d.]/g, '' ));
             window.storageManager.trimLocalLevel(levelKey, false);
             window.Game.levelMap.createMapFromString(window.storageManager.levelString);
             window.storageManager.setLevelString(window.Game.levelMap.toString());
-            window.storageManager.saveLevelToFirebase(code, window.storageManager.expandLevel());
+            window.storageManager.saveLevelToPortal(code, window.storageManager.expandLevel());
         };
         this.resetEditorScreen = function(resumeEditing){
             if (resumeEditing == true){ window.Game.levelMap.x = this.xPos; }
@@ -470,7 +477,7 @@
         this.escapeKey = function(){
             if (this.screen == 1){ //return to home screen
                 if (window.Game.dialog.isClosed()){
-                    this.updateUI();
+                    this.updateUI(1);
                     window.Game.player.respawn();
                     window.Game.setView(1);
                 }

@@ -11,8 +11,8 @@
             //initiate object variables
             this.Container_constructor(); //inherit container constructor
             this.box12 = window.Game.box12;
+            this.box16 = window.Game.box16;
             this.scaleX = this.scaleY = this.originalScaleX = this.originalScaleY = window.Game.box16;
-            this.shape = new createjs.Shape();
             this.x = this.maxX = window.Game.getWidth()*0.25; //fixed to screen
             this.regX = this.regY = .5; //center point
             this.rotationSpeed = 0.75;
@@ -23,7 +23,6 @@
             this.gravity.set(15,500);
             this.playerState = 0; //0 = alive, 1 = dead, 2 = ready
             this.respawn();
-            this.addChild(this.shape);
         };
         this.tick = function (delta, map) {
             var x = this.xPos+this.x;
@@ -42,7 +41,7 @@
             this.gapHook = false;
 
             if (this.playerState == 0){ //alive
-                if (this.y >= window.Game.getHeight()) { this.playerState = 1; createjs.Sound.play("impact"); } //kill player if off screen
+                if (this.y >= window.Game.getHeight() || this.y < -(this.box16 * 8)) { this.playerState = 1; createjs.Sound.play("impact"); } //kill player if off screen
                 else if (window.Game.artboard.x <= -this.x) { this.playerState = 1; createjs.Sound.play("impact"); }
                 else {
                     if (this.overrideCollision == false && window.Game.gamePaused == false){
@@ -63,7 +62,7 @@
                                         //this.checkTileAction();
                                         x = x1 = x2 = this.snapXtoMap(x, (this.scaleX/2), map);
                                         this.setHitBox(x, y, map); //prevents sticky wall calculation
-                                        this.rotation = 0;
+                                        this.roundRotation();
                                         this.rotate = checkX = false;
                                         this.xV = 0;
                                     }
@@ -72,7 +71,7 @@
                                     if (Math.abs(this.hitBox[2].slope) < 0.95){ //bottom tile angle is roughly less than 45deg
                                         //this.checkTileAction();
                                         x = x1 = x2 = this.snapXtoMap(x, (this.scaleX/2), map);
-                                        this.rotation = 0;
+                                        this.roundRotation();
                                         this.rotate = checkX = false;
                                         this.xV = 0;
                                     }
@@ -88,7 +87,7 @@
                                             y = y1 = y2 = this.snapYtoMap(y, -(this.scaleY/2), map);
                                             this.gravity.reset();
                                             this.gravity.push(0.5,y);
-                                            this.rotation = 0;
+                                            this.roundRotation();
                                             this.rotate = checkY = false;
                                         }
                                     }
@@ -98,7 +97,7 @@
                                             y = y1 = y2 = this.snapYtoMap(y, -(this.scaleY/2), map);
                                             this.gravity.reset();
                                             this.gravity.push(0.5,y);
-                                            this.rotation = 0;
+                                            this.roundRotation();
                                             this.rotate = checkY = false;
                                         }
                                     }
@@ -111,7 +110,7 @@
                                             y = y1 = y2 = this.snapYtoMap(y, (this.scaleY/2), map);
                                             this.gravity.reset();
                                             this.gravity.push(0.5,y);
-                                            this.rotation = 0;
+                                            this.roundRotation();
                                             this.rotate = checkY = false;
                                             this.jumpReady = true;
                                         }
@@ -122,7 +121,7 @@
                                             y = y1 = y2 = this.snapYtoMap(y, (this.scaleY/2), map);
                                             this.gravity.reset();
                                             this.gravity.push(0.5,y);
-                                            this.rotation = 0;
+                                            this.roundRotation();
                                             this.rotate = checkY = false;
                                             this.jumpReady = true;
                                         }
@@ -171,7 +170,7 @@
             else if (this.playerState == 1){ //dead
                 if (this.deathTimer <= 0 || this.deathTimer == null){
                     this.alpha = 0;
-                    this.deathTimer = 1000;
+                    this.deathTimer = 500;
                     window.Game.particles.addParticles(this.x,this.y,this.scaleX/2,this.color,1,25);
                 }
                 else{
@@ -206,7 +205,8 @@
                 this.y = this.spawnY;
             }
             else { //set to origin
-                
+                this.setSpeed(1); //reset player speed multiplier
+                this.setGravity(1); //reset player gravity multiplier
                 this.xPos = this.spawnX = 0; //relative position to level map
                 this.y = this.spawnY = 0;
                 this.scaleX = this.originalScaleX; //reset scale;
@@ -247,10 +247,13 @@
             }
             return hitBox;
         };
+        this.roundRotation = function(){
+            this.rotation = Math.round((((this.rotation % 360))) / 90) * 90;
+        };
         this.checkTileAction = function(){
             for (var i=0; i < this.hitBox.length-2; i++){ //no need to check gap checking points
-                if (this.hitBox[i].type == 2 && (i == 0 || i == 1) && Math.abs(this.hitBox[i].slope)  > 1){ this.pauseGame = true; }
-                else if (this.hitBox[i].type == 3){ 
+                if (this.hitBox[i].type == 2 && (i == 0 || i == 1) && Math.abs(this.hitBox[i].slope) > 1){ this.pauseGame = true; }
+                else if (this.hitBox[i].type == 3){ //set respawn points
                     this.spawnX = this.hitBox[i].x - this.x; 
                     this.spawnY = this.hitBox[i].y; this.newSpawn = true; 
                     window.Game.particles.addParticles(this.x,this.y,this.scaleX/2,window.Game.theme.main_color4,1,25,true);
@@ -259,8 +262,19 @@
                 else if (this.hitBox[i].type == 5) {}
                 else if (this.hitBox[i].type == 6 && (i == 0 || i == 1) && this.gravity.isRising()){ this.playerState = 1; createjs.Sound.play("impact"); }
                 else if (this.hitBox[i].type == 7 && (i == 1 || i == 2)){ this.playerState = 1; createjs.Sound.play("impact"); }
-                else if (this.hitBox[i].type == 8){ this.scaleX = this.scaleY = window.Game.box16; window.Game.particles.addParticles(this.x,this.y,this.scaleX/2,window.Game.theme.main_color4,1,25,true); }
-                else if (this.hitBox[i].type == 9){ this.scaleX = this.scaleY = window.Game.box16 / 2; window.Game.particles.addParticles(this.x,this.y,this.scaleX/2,window.Game.theme.main_color4,1,25,true); }
+                else if (this.hitBox[i].type == 8){ //grow
+                    this.scaleX = this.scaleY = window.Game.box16; 
+                    window.Game.particles.addParticles(this.x, this.y, this.scaleX/2, window.Game.theme.main_color4, 1, 25, true); 
+                    window.Game.resetMultipliers(); 
+                }
+                else if (this.hitBox[i].type == 9){ //shrink
+                    this.scaleX = this.scaleY = window.Game.box16 / 2;
+                    window.Game.particles.addParticles(this.x, this.y, this.scaleX/2, window.Game.theme.main_color4, 1, 25, true);
+                }
+                else if (this.hitBox[i].type == 12 && (i == 0 || i == 1) && Math.abs(this.hitBox[i].slope) > 1) { this.setGravity(0.5, true); } //low gravity
+                else if (this.hitBox[i].type == 13 && (i == 0 || i == 1) && Math.abs(this.hitBox[i].slope) > 1) { this.setSpeed(1.5, true); } //fast block
+                else if (this.hitBox[i].type == 14 && (i == 0 || i == 1) && Math.abs(this.hitBox[i].slope) > 1) { this.setGravity(1.5, true); } //high gravity
+                else if (this.hitBox[i].type == 15 && (i == 0 || i == 1) && Math.abs(this.hitBox[i].slope) > 1) { this.setSpeed(0.5, true); } //slow block
                 else if (this.hitBox[i].type == 10 && (i == 3 || i == 2) && this.gravity.isFalling()){ this.bounce = true; }
                 else if (this.hitBox[i].type == 11 && (i == 3 || i == 2)){ this.onFinishTile = true; }
                 else if (this.hitBox[2].type != 11 && this.hitBox[3].type != 11){ this.onFinishTile = false; }
@@ -273,6 +287,20 @@
                 }
             }
         };
+        this.setSpeed = function(newSpeed, addEffects){ 
+            window.Game.speedMultiplier = newSpeed;
+            if (addEffects == true){
+                window.Game.particles.addParticles(this.x,this.y,this.scaleX/2,"#0286f2",1,25,true);
+                createjs.Sound.play("impact");
+            }
+        }
+        this.setGravity = function(newGravity, addEffects){ 
+            window.Game.gravityMultiplier = newGravity;
+            if (addEffects == true){
+                window.Game.particles.addParticles(this.x,this.y,this.scaleX/2,"#0286f2",1,25,true);
+                createjs.Sound.play("impact");
+            }
+        }
         this.snapYtoMap = function(y, offset, map){ return (map.y+(map.getTileRow(y+Math.abs(offset))*map.box))-offset; };
         this.snapXtoMap = function(x, offset, map){ return (map.getTileCol(x+Math.abs(offset))*map.box)-offset; };
         this.completeLevel = function(){ 
@@ -282,14 +310,27 @@
             window.Game.score = window.timer.toString(); //set global score
             window.Game.dialog.openDialogWindow("complete"); 
             window.Game.interface.updateTimeButton(true);
-            ga('send', 'event', 'game', 'completed');
+            window.storageManager.checkCompleted();
         };
         this.reskin = function(){
+            var skinId = window.storageManager.getSkinId();
+            var shape = new createjs.Shape();
             this.color = window.Game.theme.main_color1;
-            this.shape = new createjs.Shape();
+            
+            //player skin options
+            if (skinId == 0) shape = window.tiles.drawShape(this.color, 0, 0, 50, true, this.box16); //default
+            else if (skinId == 1) shape = window.tiles.drawShape(this.color, 0, 0, 51, true, this.box16); //triangles
+            else if (skinId == 2) shape = window.tiles.drawShape(this.color, 0, 0, 52, true, this.box16); //circle
+            else if (skinId == 3) shape = window.tiles.drawShape(this.color, 0, 0, 53, true, this.box16); //checkered
+            else if (skinId == 4) shape = window.tiles.drawShape(this.color, 0, 0, 54, true, this.box16); //cat
+            else if (skinId == 5) shape = window.tiles.drawShape(this.color, 0, 0, 55, true, this.box16); //dog
+            else if (skinId == 6) shape = window.tiles.drawShape(this.color, 0, 0, 56, true, this.box16); //mouse
+            else if (skinId == 7) shape = window.tiles.drawShape(this.color, 0, 0, 57, true, this.box16); //bird
+            
+            shape.scaleX /= this.box16;
+            shape.scaleY /= this.box16;
             this.removeAllChildren();
-            this.addChild(this.shape);
-            this.shape.graphics.beginFill(this.color).drawRect(0,0,1,1);
+            this.addChild(shape);
         };
 
         //initiate prototype variables

@@ -7,7 +7,7 @@
     function Gravity(){
         //prototype functions
         this.init = function(){
-
+            this.direction = 1; //1 = normal, -1 = reverse
         };
 
         this.set = function(amplitude, duration){
@@ -33,7 +33,7 @@
             this.currentTime = Date.now();
             this.timeDiff = (this.currentTime - this.startTime);
             this.timeDiff -= (this.timeDiff > this.pauseDiff) ? this.pauseDiff : 0;
-            this.x = (this.timeDiff / this.duration) + this.startX;
+            this.x = (this.timeDiff / (this.duration / window.Game.speed / window.Game.gravityMultiplier)) + this.startX;
             this.yDiff = this.calculateY(this.x);
             this.y = (this.startY - this.yDiff);
             return this.y;

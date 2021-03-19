@@ -138,6 +138,38 @@
                     var particles2 = this.createClouds(this.layer6_color, 5);
                     layer6.addChild(particles2, this.replicate(particles2));
                 }
+                else if (theme == "hellLand"){
+                    //colors
+                    this.layer1_color = "#ffd33b"; //sky
+                    this.layer2_color = "#ffffff"; //clouds
+                    this.layer3_color = "#fbaf1c"; //landscape-1
+                    this.layer4_color = "#fb651c"; //landscape-2
+                    this.layer5_color = "#fb1c1c"; //landscape-3
+                    this.layer6_color = "#ffffff"; //clouds
+                    this.main_color1 = "#000000"; //player
+                    this.main_color2 = "#fb651c"; //selector 1
+                    this.main_color3 = "#fb1c1c"; //selector 2
+                    this.main_color4 = "#000000"; //map tile
+                    //layer 1
+                    var bgColor = new createjs.Shape();
+                    bgColor.graphics.beginFill(this.layer1_color).drawRect(0, -this.screenWidth, this.screenWidth*1.5, this.screenHeight*2);
+                    layer1.addChild(bgColor);
+                    //layer 2
+                    var particles = this.createClouds(this.layer2_color, 5);
+                    layer2.addChild(particles, this.replicate(particles));
+                    //layer 3
+                    var a = this.createWaves(this.layer3_color, this.screenHeight/2);
+                    layer3.addChild(a, this.replicate(a));
+                    //layer 4
+                    var b = this.createWaves(this.layer4_color, (this.screenHeight/2)+(this.box16*4));
+                    layer4.addChild(b, this.replicate(b));
+                    //layer 5
+                    var c = this.createWaves(this.layer5_color, (this.screenHeight/2)+(this.box16*8));
+                    layer5.addChild(c, this.replicate(c));
+                    //layer 6
+                    var particles2 = this.createClouds(this.layer6_color, 5);
+                    layer6.addChild(particles2, this.replicate(particles2));
+                }
                 else if (theme == "snesLand"){
                     //colors
                     this.layer1_color = "#ced4d4"; //sky
@@ -173,14 +205,46 @@
                 else if (theme == "editLand"){
                     //colors
                     this.layer1_color = "#ffffff"; //sky
-                    this.layer2_color = "#e5e5e5"; //clouds
-                    this.layer3_color = "#e5e5e5"; //landscape-1
-                    this.layer4_color = "#cccccc"; //landscape-2
-                    this.layer5_color = "#b3b3b3"; //landscape-3
+                    this.layer2_color = "#f1f1f1"; //clouds
+                    this.layer3_color = "#f1f1f1"; //landscape-1
+                    this.layer4_color = "#e6e6e6"; //landscape-2
+                    this.layer5_color = "#dddddd"; //landscape-3
+                    this.layer6_color = "#f1f1f1"; //clouds
+                    this.main_color1 = "#de5ced"; //player
+                    this.main_color2 = "#de5ced"; //selector 1
+                    this.main_color3 = "#de5ced"; //selector 2
+                    this.main_color4 = "#000000"; //map tile
+                    //layer 1
+                    var bgColor = new createjs.Shape();
+                    bgColor.graphics.beginFill(this.layer1_color).drawRect(0, -this.screenWidth, this.screenWidth*1.5, this.screenHeight*2);
+                    layer1.addChild(bgColor);
+                    //layer 2
+                    var particles = this.createClouds(this.layer2_color, 5);
+                    layer2.addChild(particles, this.replicate(particles));
+                    //layer 3
+                    var a = this.createCityLandscape(this.layer3_color, this.screenHeight/2);
+                    layer3.addChild(a, this.replicate(a));
+                    //layer 4
+                    var b = this.createCityLandscape(this.layer4_color, (this.screenHeight/2)+(this.box16*4));
+                    layer4.addChild(b, this.replicate(b));
+                    //layer 5
+                    var c = this.createCityLandscape(this.layer5_color, (this.screenHeight/2)+(this.box16*8));
+                    layer5.addChild(c, this.replicate(c));
+                    //layer 6
+                    var particles2 = this.createClouds(this.layer6_color, 5);
+                    layer6.addChild(particles2, this.replicate(particles2));
+                }
+                else if (theme == "jungleLand"){
+                    //colors
+                    this.layer1_color = "#ade84a"; //sky
+                    this.layer2_color = "#ffffff"; //clouds
+                    this.layer3_color = "#91d81c"; //landscape-1
+                    this.layer4_color = "#72c100"; //landscape-2
+                    this.layer5_color = "#50a700"; //landscape-3
                     this.layer6_color = "#ffffff"; //clouds
-                    this.main_color1 = "#0286f2"; //player
-                    this.main_color2 = "#0286f2"; //selector 1
-                    this.main_color3 = "#333333"; //selector 2
+                    this.main_color1 = "#000000"; //player
+                    this.main_color2 = "#72c100"; //selector 1
+                    this.main_color3 = "#50a700"; //selector 2
                     this.main_color4 = "#000000"; //map tile
                     //layer 1
                     var bgColor = new createjs.Shape();
