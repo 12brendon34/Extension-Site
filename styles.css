@@ -3,10 +3,15 @@ body {
     line-height: 1.5;
     background-color: #24292e;
     background-image: url(images/Background.png);
-    background-size: contain;
+    background-size: attributume;
     background-size: cover;
     background-position: center;
 }
 html {
     -webkit-text-size-adjust: 100%;
+}
+a {
+  color: hotpink;
+  font-size: 28px;
+  text-align: center;
 }
