@@ -8,6 +8,7 @@
         //prototype functions
         this.init = function() {
             //initiate object variables
+            window.Game.playMusic();
             this.showFPS = false;
             this.gamePaused = false;
             this.speed = 1;
