@@ -1,0 +1,17 @@
+{
+"companyName": "BlayzeGames",
+"productName": "Bullet Force",
+"productVersion": "1.79.0",
+"dataUrl": "BF_1.79.0_720_NoCompression.data.unityweb",
+"wasmCodeUrl": "BF_1.79.0_720_NoCompression.wasm",
+"wasmFrameworkUrl": "BF_1.79.0_720_NoCompression.wasm.framework.unityweb",
+"graphicsAPI": ["WebGL 2.0","WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"TOTAL_MEMORY": 1073741824,
+"backgroundColor": "#231F20",
+"cacheControl": {"default": "must-revalidate"},
+"developmentBuild": false,
+"multithreading": false,
+"unityVersion": "2019.4.18f1"
+}
