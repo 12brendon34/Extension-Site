@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="https://popup2extention.netlify.app/bullet_force/style.css">
+<script src="https://popup2extention.netlify.app/bullet_force/Build/unityprogress.js"></script>
+<script src="https://popup2extention.netlify.app/bullet_force/Build/unityloader.js"></script>
+<head>
+<title>Bullet Force</title>
+<meta name="viewport" content="width=device-width, maximum-scale=1.0, initial-scale=1.0, user-scalable=no, minimal-ui" />
+</head>
+<body>
+<script type="text/javascript">function loadScript(url, async, callback) {
+  var head = document.head;
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = url;
+  if(async) {
+    script.async = true;
+  }
+  script.onreadystatechange = callback;
+  script.onload = callback;
+  head.appendChild(script);
+}
+var gameInstance = UnityLoader.instantiate("gameContainer", "https://files.crazygames.com/bullet-force-multiplayer/105/Build/BF_1.79.0_720_NoCompression.json", {onProgress: UnityProgress});
+var options = {"loader":"5.6.x","author":"Blayze Games"}
+var SDK_READY = false;
+var GF_READY = false;
+var GF_LOAD_CALLED = false;
+</script>
+
+<div class="webgl-content">
+<div id="gameContainer" style="width: 960px; height: 720px">
+</div>
+<div class="footer">
+<div class="webgl-logo">
+</div>
+<div class="fullscreen" onclick="gameInstance.SetFullscreen(1)">
+</div>
+<div class="title">Bullet Force
+</div>
+</body>
+</html>
