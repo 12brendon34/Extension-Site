@@ -1,0 +1,16 @@
+{
+"companyName": "DefaultCompany",
+"productName": "New Unity Project",
+"productVersion": "0.1",
+"dataUrl": "5987e16637aea39ca4caadff170d9a1e.unityweb",
+"wasmCodeUrl": "49abbc9ead8ae2ea89f9ef58ecc30ab7.unityweb",
+"wasmFrameworkUrl": "890d0a2357d487abfe616618474bd72e.unityweb",
+"graphicsAPI": ["WebGL 1.0","WebGL 2.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20",
+"cacheControl": {"default": "must-revalidate"},
+"developmentBuild": false,
+"multithreading": false,
+"unityVersion": "2019.4.21f1"
+}

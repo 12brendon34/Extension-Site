@@ -1,19 +1,25 @@
 <!DOCTYPE html>
-<html>
-	<head>
-	  <meta charset="utf-8">
-	  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-	  <meta http-equiv="content-language" content="en-gb">
-	  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-	  <link rel="stylesheet" type="text/css" href="styles.css">
-	</head>
-	<body>
-	  <p class="center" style="color: rgb(255, 255, 255); font-size: 48px; text-align: center !important;">PopUp 2</p>
-	  <center>
-	  	<a href="Bloxel_Rebound/index.html">Bloxel Rebound</a><br>
-	  	<a href="Chrome_Dino/index.html">Chrome Dino</a><br>
-	  	<a href="Bullet_Force/index.html">Bullet Force</a><br>
-	  	<a href="Bloxel_Rebound/index.html">Bloxel Rebound</a><br>
-	  </center>
-	</body>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity WebGL Player | New Unity Project</title>
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <script src="TemplateData/UnityProgress.js"></script>
+    <script src="Build/061f463856577255fb5eefaf73e67127.js"></script>
+    <script>
+      var unityInstance = UnityLoader.instantiate("unityContainer", "Build/c3f07a15e7d349c057da3303f7245e7a.json", {onProgress: UnityProgress});
+    </script>
+  </head>
+  <body>
+    <div class="webgl-content">
+      <div id="unityContainer" style="width: 960px; height: 600px"></div>
+      <div class="footer">
+        <div class="webgl-logo"></div>
+        <div class="fullscreen" onclick="unityInstance.SetFullscreen(1)"></div>
+        <div class="title">New Unity Project</div>
+      </div>
+    </div>
+  </body>
 </html>
